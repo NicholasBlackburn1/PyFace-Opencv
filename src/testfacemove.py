@@ -18,6 +18,7 @@ nose_image = cv2.imread("1.png")
 font                   = cv2.FONT_HERSHEY_SIMPLEX
 bottomLeftCornerOfText = (44,426)
 bottomLeftCornerOfText2 = (44,464)
+bottomLeftCornerOfText3 = (44,440)
 fontScale              = .5
 fontColor              = (255,255,255)
 lineType               = 2
@@ -84,21 +85,15 @@ while True:
             bottom_right = (int(nose_center[0] + nose_width / 2),
                        int(nose_center[1] + nose_height / 2))
             
+            dim =(int(nose_width),int(nose_height))
             
-            cv2.putText(frame,'nose width'+str(int(nose_width)), 
+            cv2.putText(frame,'nose pos new'+str(dim), 
                 bottomLeftCornerOfText, 
                 font, 
                 fontScale,
                 fontColor,
                 lineType)
             
-            cv2.putText(frame,'nose hight'+str(int(nose_height)), 
-                bottomLeftCornerOfText2, 
-                font, 
-                fontScale,
-                fontColor,
-                lineType)
-            dim =(int(nose_width),int(nose_height))
             
             nose_pig = cv2.resize(nose_image, dim)
             nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
