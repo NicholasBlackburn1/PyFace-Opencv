@@ -39,7 +39,7 @@ while True:
         face_top = face.top()
         face_right = face.right()
         face_bottom = face.bottom()
-        cv2.rectangle(frame, (face_left, face_top), (face_right, face_bottom), (0, 255, 0), 3)
+        cv2.rectangle(gray, (face_left, face_top), (face_right, face_bottom), (0, 255, 0), 3)
         
         
 
@@ -75,9 +75,14 @@ while True:
             right_eye_hor_line = cv2.line(frame, right_eye_left_point, right_eye_right_point, (0, 255, 0), 2)
             right_eye_ver_line = cv2.line(frame, right_eye_center_top, right_eye_center_bottom, (0, 255, 0), 2)
             
-            nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1]))
-            nose_hight = (nose_width*0.77)
+            nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1] *2))
+            nose_height = (nose_width*0.77)
             
+                    # New nose position
+            top_left = (int(nose_center[0] - nose_width / 2),
+                              int(nose_center[1] - nose_height / 2))
+            bottom_right = (int(nose_center[0] + nose_width / 2),
+                       int(nose_center[1] + nose_height / 2))
             
             
             cv2.putText(frame,'nose width'+str(int(nose_width)), 
@@ -87,24 +92,35 @@ while True:
                 fontColor,
                 lineType)
             
-            cv2.putText(frame,'nose hight'+str(int(nose_hight)), 
+            cv2.putText(frame,'nose hight'+str(int(nose_height)), 
                 bottomLeftCornerOfText2, 
                 font, 
                 fontScale,
                 fontColor,
                 lineType)
-            dim =(int(nose_width),int(nose_hight))
+            dim =(int(nose_width),int(nose_height))
             
             nose_pig = cv2.resize(nose_image, dim)
             nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
             _,  nose_mask = cv2.threshold(nose_pig_gray, 25, 255, cv2.THRESH_BINARY_INV)   
            
+           
+            nose_area = frame[int(top_left[1]): int(top_left[1]) + int(nose_height),
+            int(top_left[0]): int(top_left[0]) + int(nose_width)]
+            nose_area_no_nose = cv2.bitwise_and(nose_area, nose_area, mask=nose_mask)
+            final_nose = cv2.add(nose_area_no_nose, nose_pig)
+            frame[int(top_left[1]): int(top_left[1]) + int(nose_height),
+            int(top_left[0]): int(top_left[0]) + int(nose_width)] = final_nose
 
-            cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
+            cv2.imshow("Nose area", nose_area)
+            cv2.imshow("Nose pig", nose_pig)
+            cv2.imshow("final nose", final_nose)
+            
+            cv2.circle(gray, (x, y), 4, (255, 0, 0), -1)
 
 
     cv2.imshow("Frame", frame)
-    #cv2.imshow("gray", gray)
+    cv2.imshow("gray", gray)
  
  
     #cv2.imshow("Nose pig", nose_image)
