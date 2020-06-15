@@ -69,13 +69,13 @@ while True:
             right_eye_center_top= midpoint(landmarks.part(43), landmarks.part(44))
             right_eye_center_bottom = midpoint(landmarks.part(46), landmarks.part(47))
 
-            left_eye_hor_line = cv2.line(frame, left_eye_left_point, left_eye_right_point, (0, 255, 0), 2)
-            left_eye_ver_line = cv2.line(frame, left_eye_center_top, left_eye_center_bottom, (0, 255, 0), 2)
+            left_eye_hor_line = cv2.line(gray, left_eye_left_point, left_eye_right_point, (0, 255, 0), 2)
+            left_eye_ver_line = cv2.line(gray, left_eye_center_top, left_eye_center_bottom, (0, 255, 0), 2)
             
-            right_eye_hor_line = cv2.line(frame, right_eye_left_point, right_eye_right_point, (0, 255, 0), 2)
-            right_eye_ver_line = cv2.line(frame, right_eye_center_top, right_eye_center_bottom, (0, 255, 0), 2)
+            right_eye_hor_line = cv2.line(gray, right_eye_left_point, right_eye_right_point, (0, 255, 0), 2)
+            right_eye_ver_line = cv2.line(gray, right_eye_center_top, right_eye_center_bottom, (0, 255, 0), 2)
             
-            nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1] *2))
+            nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1] ))
             nose_height = (nose_width*0.77)
             
                     # New nose position
