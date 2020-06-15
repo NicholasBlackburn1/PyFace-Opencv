@@ -10,6 +10,7 @@ from math import hypot
 cap = cv2.VideoCapture(0)
 
 
+
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 nose_image = cv2.imread("1.png")
@@ -17,7 +18,7 @@ nose_image = cv2.imread("1.png")
 font                   = cv2.FONT_HERSHEY_SIMPLEX
 bottomLeftCornerOfText = (44,426)
 bottomLeftCornerOfText2 = (44,464)
-fontScale              = 1
+fontScale              = .5
 fontColor              = (255,255,255)
 lineType               = 2
 
@@ -28,7 +29,10 @@ def midpoint(p1 ,p2):
 while True:
     _, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
+    rows, cols, _ = frame.shape
+    nose_mask = np.zeros((rows, cols), np.uint8)
+    nose_mask.fill(0)
+    
     faces = detector(gray)
     for face in faces:
         face_left = face.left()
@@ -71,26 +75,30 @@ while True:
             right_eye_hor_line = cv2.line(frame, right_eye_left_point, right_eye_right_point, (0, 255, 0), 2)
             right_eye_ver_line = cv2.line(frame, right_eye_center_top, right_eye_center_bottom, (0, 255, 0), 2)
             
-            nose_width = int(hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1]))
-            nose_hight = int(nose_width*0.77)
+            nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1]))
+            nose_hight = (nose_width*0.77)
             
             
             
-            cv2.putText(frame,'nose width'+str(nose_width), 
+            cv2.putText(frame,'nose width'+str(int(nose_width)), 
                 bottomLeftCornerOfText, 
                 font, 
                 fontScale,
                 fontColor,
                 lineType)
             
-            cv2.putText(frame,'nose hight'+str(nose_hight), 
+            cv2.putText(frame,'nose hight'+str(int(nose_hight)), 
                 bottomLeftCornerOfText2, 
                 font, 
                 fontScale,
                 fontColor,
                 lineType)
+            dim =(int(nose_width),int(nose_hight))
             
-            #nose_pig = cv2.resize(nose_image, (nose_width, nose_hight))
+            nose_pig = cv2.resize(nose_image, dim)
+            nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
+            _,  nose_mask = cv2.threshold(nose_pig_gray, 25, 255, cv2.THRESH_BINARY_INV)   
+           
 
             cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
 
