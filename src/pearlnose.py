@@ -42,10 +42,15 @@ def midpoint(p1 ,p2):
     
 while True:
     _, frame = cap.read()
+    
+    cv2.flip(frame, -1)
+    
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
     rows, cols, _ = frame.shape
     nose_mask = np.zeros((rows, cols), np.uint8)
     eyeLmask = np.zeros((rows,cols), np.uint8)
+    
     nose_mask.fill(0)
     eyeLmask.fill(0)
    
@@ -93,7 +98,6 @@ while True:
             
            
             eyeL_width = (hypot(left_eye_left_point[0] - left_eye_right_point[0], left_eye_left_point[1] - left_eye_right_point[1]))
-            eyeL_center = (hypot(left_eye_center_top[0] -left_eye_center_bottom[0],left_eye_center_top[1] - left_eye_center_bottom[1]))
             eyeL_height = (eyeL_width*0.77)
             
             nose_width = (hypot(nose_left[0] - nose_right[0], nose_left[1]- nose_right[1] ))
@@ -108,13 +112,7 @@ while True:
             
             bottom_right = (int(nose_center[0] + nose_width / 2),
                        int(nose_center[1] + nose_height / 2))
-            
-            top_left_eye = (int(eyeL_center[0] - eyeL_width / 2),
-                              int(eyeL_center[1] - eyeL_height / 2))
-            
-            bottom_right_eye = (int(eyeL_center[0] + eyeL_width / 2),
-                int(eyeL_center[1] + eyeL_height / 2))
-            
+    
             dim =(int(nose_width),int(nose_height))
             Lefteyedim =(int(eyeL_width),int(eyeL_height))
             
@@ -133,14 +131,6 @@ while True:
                 lineType)
             
            
-            cv2.putText(frame,'eyeLEFT centerpoint'+str(int(top_left_eye),int(bottom_right_eye)), 
-                bottomLeftCornerOfText3, 
-                font, 
-                fontScale,
-                fontColor,
-                lineType)
-            
-            
             
             nose_pig = cv2.resize(nose_image, dim)
             nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
@@ -156,24 +146,10 @@ while True:
             frame[int(top_left[1]): int(top_left[1]) + int(nose_height),
             int(top_left[0]): int(top_left[0]) + int(nose_width)] = final_nose
             
-            #Eye area and masking 
-            
-            lefteye = cv2.resize(eye_image, Lefteyedim)
-            left_eye_gray = cv2.cvtColor(eye_image, cv2.COLOR_BGR2GRAY)
-            _,  eye_mask = cv2.threshold(nose_pig_gray, 25, 255, cv2.THRESH_BINARY_INV)   
-           
-           
-            Left_eye_area = frame[int(top_left_eye[1]): int(top_left_eye[1]) + int(eyeL_height),
-            int(top_left_eye[0]): int(top_left_eye[0]) + int(eyeL_width)]
-
-            eyeL_area_no_eye = cv2.bitwise_and(Left_eye_area, Left_eye_area, mask=eye_mask)
-            final_Left_eye = cv2.add(eyeL_area_no_eye, eye_image)
-           
-           
+            #
             #cv2.imshow("Nose pig", eye_image)
             cv2.imshow("final nose", final_nose)
-            #cv2.imshow("finalEyee",gray)
-            
+           
             cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
    
         
