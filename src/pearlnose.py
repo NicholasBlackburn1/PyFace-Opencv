@@ -5,23 +5,22 @@ Python Opencv Face Repacer / move  3d model useing onlyface
 import cv2
 import numpy as np
 import dlib
-from math import hypot
-import matplotlib.pyplot as plt
-import threading
-from matplotlib import animation
-
+from math import dist, hypot
+from scipy.spatial import distance as dist  
+from scipy.spatial import ConvexHull  
 cap = cv2.VideoCapture(0)
 
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
 nose_image = cv2.imread("1.png")
 eye_image = cv2.imread("eyeL.png")
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 bottomLeftCornerOfText = (44, 426)
 bottomLeftCornerOfText2 = (44, 464)
-bottomLeftCornerOfText3 = (44, 440)
+bottomLeftCornerOfText3 = (44, 445)
 fontScale = .5
 fontColor = (255, 255, 255)
 lineType = 2
@@ -29,6 +28,15 @@ lineType = 2
 
 def midpoint(p1, p2):
     return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
+
+def eye_size(eye,eye2):  
+   eyeWidth = dist.euclidean(eye[0], eye2[1])  
+   hull = ConvexHull(eye)  
+   eyeCenter = np.mean(eye[hull.vertices, :], axis=0)  
+   
+   eyeCenter = eyeCenter.astype(int)  
+   
+   return int(eyeWidth), eyeCenter  
 
 
 while True:
@@ -81,6 +89,7 @@ while True:
 
             right_eye_center_top = midpoint(
                 landmarks.part(43), landmarks.part(44))
+        
             right_eye_center_bottom = midpoint(
                 landmarks.part(46), landmarks.part(47))
 
@@ -94,24 +103,38 @@ while True:
             right_eye_ver_line = cv2.line(
                 frame, right_eye_center_top, right_eye_center_bottom, (0, 255, 0), 2)
 
+            # LEft eye Width and Hight 
             eyeL_width = (hypot(
                 left_eye_left_point[0] - left_eye_right_point[0], left_eye_left_point[1] - left_eye_right_point[1]))
             eyeL_height = (eyeL_width*0.77)
-
+            
+            #Right eye Width and Hight
+            rightEye_width = (hypot(
+                right_eye_left_point[0] - right_eye_right_point[0], right_eye_left_point[1] - right_eye_right_point[1]))
+            rightEye_height = (eyeL_width*0.77)
+            
+            #nose Hight and Width
             nose_width = (
                 hypot(nose_left[0] - nose_right[0], nose_left[1] - nose_right[1]))
             nose_height = (nose_width*0.77)
 
-            # New nose position
+            #  nose position
             top_left = (int(nose_center[0] - nose_width / 2),
                         int(nose_center[1] - nose_height / 2))
 
             bottom_right = (int(nose_center[0] + nose_width / 2),
                             int(nose_center[1] + nose_height / 2))
-
+            
+            '''
+            dimetions for eyes nose and mouth being calculated for image pos
+            '''
             dim = (int(nose_width), int(nose_height))
             Lefteyedim = (int(eyeL_width), int(eyeL_height))
-
+            Righteyedim = (int(rightEye_width),int(rightEye_height))
+            '''
+            This Is the Opencv Window Txt printing nose location and Left eye Pos based on Width and Hight
+            '''
+            
             cv2.putText(frame, 'nose pos new'+str(dim),
                         bottomLeftCornerOfText,
                         font,
@@ -119,12 +142,20 @@ while True:
                         fontColor,
                         lineType)
 
-            cv2.putText(frame, 'eyeLEFT pos new'+str(Lefteyedim),
+            cv2.putText(frame, 'Left Eye pos '+str(Lefteyedim),
                         bottomLeftCornerOfText2,
                         font,
                         fontScale,
                         fontColor,
                         lineType)
+            
+            cv2.putText(frame, 'Right Eye pos '+str(Righteyedim),
+                        bottomLeftCornerOfText3,
+                        font,
+                        fontScale,
+                        fontColor,
+                        lineType)
+
 
             nose_pig = cv2.resize(nose_image, dim)
             nose_pig_gray = cv2.cvtColor(nose_pig, cv2.COLOR_BGR2GRAY)
@@ -145,7 +176,7 @@ while True:
             #cv2.imshow("Nose pig", eye_image)
             cv2.imshow("final nose", final_nose)
 
-            cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
+            cv2.circle(frame, (x, y), 6, (255, 0, 0), -1)
 
     cv2.imshow("Frame", frame)
     #cv2.imshow("gray", gray)
